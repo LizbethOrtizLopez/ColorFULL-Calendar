@@ -1,58 +1,30 @@
 
-import java.awt.Color;
 import java.awt.Component;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
-
-import javax.swing.JColorChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import javax.swing.JTextField;
-
 public class Calendario extends javax.swing.JFrame {
-    
-    private final String[] MONTHS = {"Enero","Febrero","Marzo","Abril",
-                                  "Mayo","Junio","Julio","Agosto","Septiembre","Octubre",
-                                  "Noviembre","Diciembre"};
+ 
     private  CalendarPage calenderPage;
     private  SemanaPage semanaPage;
     private DiaPage diaPage;
-    //private  DiaPage diaPage; 
     private Calendar  calDate;
-    GregorianCalendar greCal;
+    private String before;
     private DefaultComboBoxModel<String> yearboxModel;
    
     public Calendario() {
         
-        //if(diaJDateChooser.getDate()==null) System.out.println("hola toy chikito");
-        //DateFormat f=new SimpleDateFormat("yyyy-MM-d");
-        //String dia = f.format(diaJDateChooser.getDate());
-        
-        //System.out.println("asi inicia el dia: "+dia);
- 
-        /*try {
-            evento.setFecha_inicio(new SimpleDateFormat("yyyy-MM-d").parse(fecha_inicioS));
-            evento.setFecha_fin(new SimpleDateFormat("yyyy-MM-d").parse(fecha_finS));
-            
-        } catch (ParseException ex) {
-            Logger.getLogger(EventoWindow.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
-
+        before="Mes";
         calDate = Calendar.getInstance(); 
         initComponents(); 
         displayCalendar(0);
         calenderPage.printDate(dateView);     
-        //calenderPage.printTime(clockView); 
         this.setVisible(true);
     }
     
@@ -66,10 +38,10 @@ public class Calendario extends javax.swing.JFrame {
     }
          
     private void displayCalendar(int month){
-        
+
         calDate.add(Calendar.MONTH, month);
         int y = calDate.get(Calendar.YEAR);
-        int m = calDate.get(Calendar.MONTH);    
+        int m = calDate.get(Calendar.MONTH);  
         calenderPage =  new CalendarPage(y ,m,topDAte,calendarView);
         
         if(calendarView.getComponents().length > 0){
@@ -84,8 +56,7 @@ public class Calendario extends javax.swing.JFrame {
     }
     
     private void displaySemana(int month){
-        //calendarView.removeAll();
-        
+
         calDate.add(Calendar.MONTH, month);
         int y = calDate.get(Calendar.YEAR);
         int m = calDate.get(Calendar.MONTH);    
@@ -101,12 +72,10 @@ public class Calendario extends javax.swing.JFrame {
         else calendarView.add(semanaPage);
     }
     
-    private void displayDia(int mes, int dia, int year, int dia_semana){
-        System.out.println("hola");
+    private void displayDia(int mes, int dia, int year, int dia_semana, String fecha){
+        
         calDate.add(Calendar.MONTH, mes);
-        int y = calDate.get(Calendar.YEAR);
-        int m = calDate.get(Calendar.MONTH); 
-        diaPage =  new DiaPage(year ,mes, dia,dia_semana, topDAte,calendarView);
+        diaPage =  new DiaPage(year ,mes, dia,dia_semana, fecha, topDAte,calendarView);
         if(calendarView.getComponents().length > 0){
             Component com  = calendarView.getComponent(0);
             if(com instanceof  JPanel){
@@ -116,6 +85,15 @@ public class Calendario extends javax.swing.JFrame {
             }
         }
         else calendarView.add(diaPage);
+    }
+    
+    private Object[] DateChooser(){  
+       com.toedter.calendar.JDateChooser jd = new com.toedter.calendar.JDateChooser();
+       String message ="Elegir fecha:\n";
+       Object[] params = {message,jd};
+       JOptionPane.showConfirmDialog(null,params,"Elegir fecha a buscar", JOptionPane.PLAIN_MESSAGE); 
+       
+       return params;
     }
     
     @SuppressWarnings("unchecked")
@@ -138,6 +116,7 @@ public class Calendario extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMaximumSize(new java.awt.Dimension(1180, 700));
         setPreferredSize(new java.awt.Dimension(1180, 730));
+        setResizable(false);
         getContentPane().setLayout(null);
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Arrows-Left-Round-icon.png"))); // NOI18N
@@ -247,15 +226,85 @@ public class Calendario extends javax.swing.JFrame {
     }//GEN-LAST:event_creaEvento_buttonActionPerformed
 
     private void eliminarEvento_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarEvento_buttonActionPerformed
-        BorrarEventoWindow borrar_evento = new BorrarEventoWindow();
-        borrar_evento.show();  
+
+        Object[] params = DateChooser();
+        
+        Conectar cc = new Conectar();       
+        ArrayList fechas;
+
+        DateFormat f=new SimpleDateFormat("yyyy-MM-d");
+        String fecha = f.format(((com.toedter.calendar.JDateChooser)params[1]).getDate());
+
+        fechas = cc.Consultar(cc, fecha);
+
+        Object[] fechasObject = new Object[fechas.size()];
+        
+        for (int i=0;i<fechas.size();i++){
+            fechasObject[i]=fechas.get(i);
+        }
+  
+        Object seleccion = JOptionPane.showInputDialog(
+            null,
+            "Seleccione evento a eliminar",
+            "Selector de opciones",
+            JOptionPane.QUESTION_MESSAGE,
+            null,  // null para icono defecto
+            fechasObject,"opcion 1");
+        
+        int opci = JOptionPane.showOptionDialog(
+            null,
+            "¿Desea eliminar todas las ocurrencias?", 
+            "Selector de opciones",
+            JOptionPane.YES_NO_CANCEL_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,    // null para icono por defecto.
+            new Object[] { "Si", "No"},   // null para YES, NO y CANCEL
+            "opcion 1");
+       
+        if (opci==0){
+            cc.eliminarByTitulo(cc,String.valueOf(seleccion));
+        } 
+        else{
+          cc.elimininarByFecha(cc,String.valueOf(seleccion),fecha);  
+        }
+        
         displayCalendar(0);
+
     }//GEN-LAST:event_eliminarEvento_buttonActionPerformed
 
     private void modificarEvento_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modificarEvento_buttonActionPerformed
-        ModificarEventoWindow1 modificar_evento = new ModificarEventoWindow1();
+   
+        Object[] params = DateChooser();
+        
+        Conectar cc = new Conectar();       
+        ArrayList fechas;
+
+        DateFormat f=new SimpleDateFormat("yyyy-MM-d");
+        String fecha = f.format(((com.toedter.calendar.JDateChooser)params[1]).getDate());
+
+        fechas = cc.Consultar(cc, fecha);
+
+        Object[] fechasObject = new Object[fechas.size()];
+        
+        for (int i=0;i<fechas.size();i++){
+            fechasObject[i]=fechas.get(i);
+        }
+  
+        Object seleccion = JOptionPane.showInputDialog(
+            null,
+            "Seleccione evento a modificar",
+            "Selector de opciones",
+            JOptionPane.QUESTION_MESSAGE,
+            null,  // null para icono defecto
+            fechasObject,"opcion 1");
+        
+        int id = cc.ConsultarID(cc, String.valueOf(seleccion),fecha);
+     
+        ModificarEventoWindow modificar_evento = new ModificarEventoWindow(id);
         modificar_evento.show();  
+        
         displayCalendar(0);
+  
     }//GEN-LAST:event_modificarEvento_buttonActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -267,7 +316,6 @@ public class Calendario extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         String opt = (String)vistaBox.getSelectedItem();
-        System.out.println("esto es el opt: "+opt+'\n');
          if (opt=="Mes"){
              displayCalendar(-1);
          }
@@ -275,15 +323,20 @@ public class Calendario extends javax.swing.JFrame {
 
     private void vistaBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vistaBoxActionPerformed
         String opt = (String)vistaBox.getSelectedItem();
-        System.out.println("esto es el opt: "+opt+'\n');
         if (opt=="Mes"){
+             if (before=="Dia" || before=="Semana"){
+                 calDate = Calendar.getInstance();
+             }
+             before = "Mes";
              displayCalendar(0);
         }
         else if (opt=="Semana"){
+             before = "Semana";
              displaySemana(0);
         }
         else if (opt=="Dia"){
-
+            
+            before = "Dia";
             com.toedter.calendar.JDateChooser jd = new com.toedter.calendar.JDateChooser();
             String message ="Elegir fecha:\n";
             Object[] params = {message,jd};
@@ -292,6 +345,9 @@ public class Calendario extends javax.swing.JFrame {
             Date date = jd.getDate();
             Calendar calendario = Calendar.getInstance();
             calendario.setTime(date);
+            
+            DateFormat f=new SimpleDateFormat("yyyy-MM-d");
+            String fecha = f.format(((com.toedter.calendar.JDateChooser)params[1]).getDate());
             
             DateFormat yearD=new SimpleDateFormat("yyyy");
             int year = Integer.parseInt(yearD.format(((com.toedter.calendar.JDateChooser)params[1]).getDate()));
@@ -303,7 +359,9 @@ public class Calendario extends javax.swing.JFrame {
             int day = Integer.parseInt(dayD.format(((com.toedter.calendar.JDateChooser)params[1]).getDate()));
             
             int dia_semana = calendario.get(Calendar.DAY_OF_WEEK);         
-            displayDia(month,day,year,dia_semana);
+            
+            displayDia(month,day,year,dia_semana, fecha);
+  
         }
     }//GEN-LAST:event_vistaBoxActionPerformed
  

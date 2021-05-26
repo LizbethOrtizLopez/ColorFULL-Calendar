@@ -195,8 +195,6 @@ public class SemanaPage extends  JPanel{
             else{
                 fecha = String.valueOf(year)+"-"+String.valueOf(month+1)+"-"+String.valueOf(i);
             }
- 
-            System.out.println("esta es la fecha: "+fecha);
 
             try {
                 st=cn.createStatement();

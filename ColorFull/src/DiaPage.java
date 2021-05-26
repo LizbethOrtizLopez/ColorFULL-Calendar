@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import javax.swing.Box;
@@ -21,6 +21,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -29,70 +30,75 @@ import javax.swing.border.LineBorder;
  */
 
 public class DiaPage extends  JPanel{
+    
     private final int month;
     private int year;
     private int day;
-    private int daysWeek;
     private int dia_semana;
-    private GregorianCalendar   calendar;
-    private final String[] MONTHS = {"Enero","Febrero","Marzo","Abril",
-                                  "Mayo","Junio","Julio","Agosto","Septiembre","Octubre",
-                                  "Noviembre","Diciembre"};
+    private String fecha;
+    
+    private ArrayList fechas;
+    
+    private GregorianCalendar calendar;
 
     private JLabel dateview;
     Font  digitalClock  =null;
 
-/**
- * 
- * @param y the current year of the date (Calendar.YEAR).
- * @param m the current month of the date (Calendar.MONTH).
- * @param dateview  A JLabel that will display month and year of a date.
- * @param parrent  A JPanel that hosts this calendar page.
- */
-
-    public DiaPage(int y ,int m, int d, int diaSem, JLabel dateview,Container parrent) throws  IllegalArgumentException{
+    public DiaPage(int y ,int m, int d, int diaSem, String f, JLabel dateview,Container parrent) throws  IllegalArgumentException{
         checkParameters(y, m, dateview, parrent);
   
         month =m;
         year = y;
         day = d;
         dia_semana = diaSem;
+        fecha=f;
         
-        this.dateview =dateview;
-        loadDigitalFont();
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(Color.WHITE);
-        setFont(parrent.getFont());
-      
-       //JPanel  headderPAne  =  new JPanel(new GridLayout(1, 1, 700, 5));
-       JPanel  headderPAne  =  new JPanel();
-       BevelBorder  bb =new BevelBorder(BevelBorder.RAISED, Color.lightGray, Color.DARK_GRAY);
-       EmptyBorder eb =  new EmptyBorder(20, 20, 20, 20);
-       setBorder(new CompoundBorder(bb, eb));
-       headderPAne.setBackground(Color.WHITE);
-        
-         String[] weekDays  ={"Dom","Lun","Mar","Miér","Jue","Vi","Sa"}; 
-         //for(int i = 0; i < weekDays.length; ++i){
-         System.out.println("yo soy day: "+day);
+        if(consultar()==0){
+            JOptionPane.showMessageDialog(null,"No tienes eventos en este día");
+        }
+        else{
+            this.dateview =dateview;
+            loadDigitalFont();
+            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+            setBackground(Color.WHITE);
+            setFont(parrent.getFont());
+            
+            JPanel  headderPAne  =  new JPanel();
+            BevelBorder  bb =new BevelBorder(BevelBorder.RAISED, Color.lightGray, Color.DARK_GRAY);
+            EmptyBorder eb =  new EmptyBorder(20, 20, 20, 20);
+            setBorder(new CompoundBorder(bb, eb));
+            headderPAne.setBackground(Color.WHITE);
+            
+            String[] weekDays  ={"Dom","Lun","Mar","Miér","Jue","Vi","Sa"}; 
+
             JLabel  dayName  =  new JLabel(weekDays[dia_semana-1],JLabel.CENTER);
             if(weekDays[dia_semana-1] =="Dom"){
                 dayName.setForeground(Color.red);
             }
             dayName.setFont(getFont());
             headderPAne.add(dayName);
-        //}
-        JSeparator separator =  new JSeparator(JSeparator.HORIZONTAL);
+            
+            JSeparator separator =  new JSeparator(JSeparator.HORIZONTAL);
         
-        headderPAne.add(separator);
-        separator.setBorder(new LineBorder(Color.BLUE, 10));
-         
-        JPanel page  =  printPage();
-        page.setOpaque(false);    
-        add(headderPAne); 
-        add(separator); 
-        //add(Box.createVerticalStrut(360));
-        add(Box.createHorizontalStrut(867));
-        add(page);
+            headderPAne.add(separator);
+            separator.setBorder(new LineBorder(Color.BLUE, 10));
+
+            JPanel page  =  printPage();
+            page.setOpaque(false);    
+            add(headderPAne); 
+            add(separator); 
+            add(Box.createHorizontalStrut(867));
+            add(page); 
+        }
+    }
+    
+    private int consultar(){    
+       Conectar cc = new Conectar();         
+       fechas = cc.Consultar(cc, this.fecha);    
+       if (fechas.size()==0){  
+           return 0;
+       } 
+       return 1;
     }
   
   private void checkParameters(int y ,int m,JLabel dateview,Container parrent)
@@ -128,9 +134,7 @@ public class DiaPage extends  JPanel{
         EmptyBorder eb =  new EmptyBorder(10, 10, 10, 10);
         LineBorder bbred= new LineBorder(Color.RED);
         LineBorder bbblue= new LineBorder(Color.BLUE);
-        //page.add(Box.createVerticalStrut(200));
 
-        printDate(dateview);
         page.setLayout(new GridLayout(1, 1, 1, 5));
         if(leadGap == 0)leadGap = 7;
 
@@ -138,13 +142,10 @@ public class DiaPage extends  JPanel{
         int today  =  c.get(Calendar.DAY_OF_MONTH);
         int yr  =  c.get(Calendar.YEAR);
         int mt  =  c.get(Calendar.MONTH);
-        
-        int aux = 0;        
             
         JPanel panel=new JPanel();
         panel.setLayout(new GridLayout(26,1,1,0));
         panel.setOpaque(false);
-        //panel.add(Box.createVerticalStrut(200));
             
         boolean bandera = false;
 
@@ -152,21 +153,10 @@ public class DiaPage extends  JPanel{
         Connection cn = cc.conexion();           
         Statement st;
         ResultSet rs;
-     
-        String fecha="";
-        if(month<10){
-            String auxi = "0"+String.valueOf(month);
-            fecha = String.valueOf(year)+"-"+auxi+"-"+String.valueOf(day);
-        }
-        else{
-            fecha = String.valueOf(year)+"-"+String.valueOf(month)+"-"+String.valueOf(day);
-        }
- 
-        System.out.println("esta es la fecha: "+fecha);
 
         try {
             st=cn.createStatement();
-            rs=st.executeQuery("SELECT * FROM eventos WHERE fecha_inicio='"+fecha+"';");
+            rs=st.executeQuery("SELECT * FROM eventos WHERE fecha_inicio='"+this.fecha+"';");
             while (rs.next()) {  
                 bandera = true;
                 JLabel x = new JLabel();
@@ -243,27 +233,6 @@ public class DiaPage extends  JPanel{
   
     public   Color rgb(int r,int g, int b){
         return new Color(r,g,b);
-    } 
-    
-    public void printDate(JPanel dateview){
-        Calendar  now  =  Calendar.getInstance();
-        String[] fullDate  = {MONTHS[month],String.valueOf(now.get(Calendar.YEAR))};
-       SimpleDateFormat   dateFormat =  
-        new SimpleDateFormat("EEEE, MMMM dd, YYYY");
-        
-        JLabel  date  =  new JLabel(dateFormat.format(now.getTime()));
-        date.setFont(dateview.getFont());
-        dateview.add(Box.createHorizontalStrut(200));
-        dateview.add(date);
-        JSeparator separator =  new JSeparator(JSeparator.HORIZONTAL);
-        separator.setBorder(new LineBorder(Color.LIGHT_GRAY, 4));
-        dateview.add(Box.createVerticalStrut(7));
-        dateview.add(separator);
-    }
-    
-    public void printDate(JLabel dateview){
-        String[] fullDate  = {MONTHS[month],String.valueOf(year)};
-        dateview.setText(fullDate[0]+", "+fullDate[1]);
     } 
 }
     

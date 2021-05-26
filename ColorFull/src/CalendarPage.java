@@ -1,13 +1,10 @@
 
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -15,16 +12,12 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -179,8 +172,6 @@ public class CalendarPage extends  JPanel{
                 fecha = String.valueOf(year)+"-"+String.valueOf(month+1)+"-"+String.valueOf(i);
             }
  
-            System.out.println("esta es la fecha: "+fecha);
-
             try {
                 st=cn.createStatement();
                 rs=st.executeQuery("SELECT * FROM eventos WHERE fecha_inicio='"+fecha+"';");
@@ -192,7 +183,6 @@ public class CalendarPage extends  JPanel{
                     x.setFont(getFont());
                     x.setOpaque(true);
                     x.setBackground(colorcito);
-                    //x.setForeground(colorcito);
                     panel.add(x);
                 }
                 cn.close();
@@ -360,54 +350,5 @@ public class CalendarPage extends  JPanel{
         String[] fullDate  = {MONTHS[month],String.valueOf(year)};
         dateview.setText(fullDate[0]+", "+fullDate[1]);
     }
-    
-    public void printTime(JPanel clockview){
-        Calendar  cal  = Calendar.getInstance();   
-        SimpleDateFormat   dateFormat =  
-        new SimpleDateFormat("hh:mm:ss");
-        //JLabel  clock  =  new JLabel();
-        SimpleDateFormat   dateFormatAm =  
-        new SimpleDateFormat("a");
-        JLabel  am  =  new JLabel(dateFormatAm.format(cal.getTime()));
-        JTextField  clock = new JTextField(7);
-        clock.setOpaque(false);
-        clock.setEditable(false);
-        clock.setFocusable(false);
-        clock.setPreferredSize(new Dimension(12, 50));
-        clock.setBorder(new EmptyBorder(7,7,7,0));
-        clock.setText(dateFormat.format(cal.getTime()));
-        Font clockFont  = clockview.getFont();
 
-        clock.setFont(new Font(digitalClock.getFamily(),clockFont.getStyle(),clockFont.getSize()) );
-        am.setFont(new Font(clockFont.getFamily(),clockFont.getStyle(), 18));
-        JLabel dumb = new JLabel("                ");
-        dumb.setFont(clockFont);
-
-        clockview.add(clock);
-        clockview.add(am);
-        clockview.add(dumb);
-   
-        SwingUtilities.invokeLater(() -> {
-        Timer  timer  =   new Timer(500,new CallBackTimer(am, clock));
-        timer.start();
-       });
-    }
-
-    private static class CallBackTimer implements  ActionListener{
-        private JLabel am;
-        private final  JTextField clock;
-
-        public CallBackTimer(JLabel am, JTextField clockView) {
-            this.am = am;
-            this.clock = clockView;
-        }
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            clock.setText(new SimpleDateFormat("hh:mm:ss").format(new Date()));
-            am.setText(new SimpleDateFormat("a").format(new Date()));
-            am.repaint();
-            clock.repaint();   
-        }
-    }
-     
 }//end method 

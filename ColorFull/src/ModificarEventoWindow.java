@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 public class ModificarEventoWindow extends javax.swing.JFrame {
 
@@ -20,6 +21,15 @@ public class ModificarEventoWindow extends javax.swing.JFrame {
     }
     public void setColor(Color color) {
         this.color = color;
+    }
+    
+    private Object[] DateChooser(){  
+       com.toedter.calendar.JDateChooser jd = new com.toedter.calendar.JDateChooser();
+       String message ="Elegir fecha:\n";
+       Object[] params = {message,jd};
+       JOptionPane.showConfirmDialog(null,params,"Elegir fecha a buscar", JOptionPane.PLAIN_MESSAGE); 
+       
+       return params;
     }
  
     @SuppressWarnings("unchecked")
@@ -232,7 +242,8 @@ public class ModificarEventoWindow extends javax.swing.JFrame {
 	evento.setOcurrencia((String) ocurrenciaPicker.getSelectedItem()); 
         evento.setColor(color);   
         
-        cc.modificar(cc,evento,this.id);      
+        cc.modificar(cc,evento,this.id);    
+        dispose();
     }//GEN-LAST:event_GuardarActionPerformed
     
     public static void main(String args[]) {

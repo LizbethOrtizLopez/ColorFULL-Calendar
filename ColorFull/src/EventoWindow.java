@@ -4,21 +4,43 @@ import javax.swing.JColorChooser;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
-public class EventoWindow extends javax.swing.JFrame {
+public class EventoWindow extends javax.swing.JFrame  {
 
     private Color color; 
+    private int dias;
     
     public EventoWindow() {
 
         this.color = null;
+        this.dias = 1;
         initComponents();
         this.setVisible(true);
     }
     public void setColor(Color color) {
         this.color = color;
+    }
+    
+    private Object[] DateChooser(){  
+       com.toedter.calendar.JDateChooser jd = new com.toedter.calendar.JDateChooser();
+       String message ="Elegir fecha:\n";
+       Object[] params = {message,jd};
+       JOptionPane.showConfirmDialog(null,params,"Elegir fecha límite de ocurrencia:", JOptionPane.PLAIN_MESSAGE); 
+       
+       return params;
+    }
+    
+    private int diasXPasar(Date fechaIni, Date fechaFin){
+        
+        long comienzo = fechaIni.getTime();
+        long fin = fechaFin.getTime();
+        long diferencia = fin - comienzo;
+        long dias_Pasar = diferencia / (1000*60*60*24);
+        return (int)dias_Pasar;
     }
  
     @SuppressWarnings("unchecked")
@@ -70,6 +92,11 @@ public class EventoWindow extends javax.swing.JFrame {
         Guardar.setBounds(490, 380, 130, 33);
 
         ocurrenciaPicker.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "No repetir", "Diariamente", "Semanalmente", "Mensualmente", "Anualmente", "De lunes a viernes" }));
+        ocurrenciaPicker.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ocurrenciaPickerActionPerformed(evt);
+            }
+        });
         getContentPane().add(ocurrenciaPicker);
         ocurrenciaPicker.setBounds(570, 210, 110, 20);
 
@@ -201,39 +228,71 @@ public class EventoWindow extends javax.swing.JFrame {
         JColorChooser colorChooser = new JColorChooser();
         //variable color guarda el color seleccionado
         setColor(JColorChooser.showDialog(null,"Color del evento", Color.black));
-        System.out.println("este es el color: "+color.getRGB());
     }//GEN-LAST:event_elegirColorActionPerformed
 
     private void GuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_GuardarActionPerformed
 
-	Evento evento= new Evento();
-        Conectar cc = new Conectar();
-
-        DateFormat f=new SimpleDateFormat("yyyy-MM-d");
-        String fecha_inicioS = f.format(fechaIni_jDateChooser.getDate());
-        String fecha_finS = f.format(fechaFin_jDateChooser1.getDate());
+	dispose();
         
-        try {
-            evento.setFecha_inicio(new SimpleDateFormat("yyyy-MM-d").parse(fecha_inicioS));
-            evento.setFecha_fin(new SimpleDateFormat("yyyy-MM-d").parse(fecha_finS));
-            
-        } catch (ParseException ex) {
-            Logger.getLogger(EventoWindow.class.getName()).log(Level.SEVERE, null, ex);
+        try{
+            Evento evento= new Evento();
+            Conectar cc = new Conectar();
+
+            DateFormat f=new SimpleDateFormat("yyyy-MM-d");
+            String fecha_inicioS = f.format(fechaIni_jDateChooser.getDate());
+            String fecha_finS = f.format(fechaFin_jDateChooser1.getDate());
+
+            try {
+                evento.setFecha_inicio(new SimpleDateFormat("yyyy-MM-d").parse(fecha_inicioS));
+                evento.setFecha_fin(new SimpleDateFormat("yyyy-MM-d").parse(fecha_finS));
+
+            } catch (ParseException ex) {
+                Logger.getLogger(EventoWindow.class.getName()).log(Level.SEVERE, null, ex);
+            } 
+
+            evento.setHora_inicio(Integer.parseInt((String)hourPicker.getSelectedItem()));
+            evento.setMin_inicio(Integer.parseInt((String)minutePicker.getSelectedItem()));
+            evento.setAmpm_inicio((String)AmPmPicker.getSelectedItem());
+            evento.setHora_fin(Integer.parseInt((String)hourPicker1.getSelectedItem()));
+            evento.setMin_fin(Integer.parseInt((String)minutePicker1.getSelectedItem()));
+            evento.setAmpm_fin((String)AmPmPicker1.getSelectedItem());
+            evento.setTitulo(titulo_TF.getText());
+            evento.setDescripcion(descripcion_TF.getText());
+            evento.setOcurrencia((String) ocurrenciaPicker.getSelectedItem()); 
+            evento.setColor(color);   
+
+            cc.Guardar(cc,evento,this.dias);
+        }
+        catch (Exception e){
+            JOptionPane.showMessageDialog(null,"No se pudo guardar el evento. Verifica tus datos");
         } 
-
-	evento.setHora_inicio(Integer.parseInt((String)hourPicker.getSelectedItem()));
-	evento.setMin_inicio(Integer.parseInt((String)minutePicker.getSelectedItem()));
-	evento.setAmpm_inicio((String)AmPmPicker.getSelectedItem());
-	evento.setHora_fin(Integer.parseInt((String)hourPicker1.getSelectedItem()));
-	evento.setMin_fin(Integer.parseInt((String)minutePicker1.getSelectedItem()));
-	evento.setAmpm_fin((String)AmPmPicker1.getSelectedItem());
-	evento.setTitulo(titulo_TF.getText());
-	evento.setDescripcion(descripcion_TF.getText());
-	evento.setOcurrencia((String) ocurrenciaPicker.getSelectedItem()); 
-        evento.setColor(color);   
         
-        cc.Guardar(cc,evento);      
+        
     }//GEN-LAST:event_GuardarActionPerformed
+
+    private void ocurrenciaPickerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ocurrenciaPickerActionPerformed
+       
+        String item = (String)ocurrenciaPicker.getSelectedItem();
+        Date fechaIni = fechaIni_jDateChooser.getDate(); //fecha cuando comienza
+            
+        if (item=="Diariamente" || item=="Semanalmente" || item=="Mensualmente" || item=="Anualmente" || item=="De lunes a viernes"){
+           
+           com.toedter.calendar.JDateChooser jd = new com.toedter.calendar.JDateChooser();
+           String message ="Elegir fecha:\n";
+           Object[] params = {message,jd};
+           JOptionPane.showConfirmDialog(null,params,"Elegir fecha límite de ocurrencia:", JOptionPane.PLAIN_MESSAGE); 
+
+           DateFormat f=new SimpleDateFormat("yyyy-MM-d");
+           String fecha = f.format(((com.toedter.calendar.JDateChooser)params[1]).getDate());
+           
+           Date fechaFin = jd.getDate(); //fecha del fin de la ocurrencia
+           
+           this.dias = diasXPasar(fechaIni, fechaFin);      
+       }
+       else{
+            this.dias = 1;
+       }
+    }//GEN-LAST:event_ocurrenciaPickerActionPerformed
     
     public static void main(String args[]) {
 
