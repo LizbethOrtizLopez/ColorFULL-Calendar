@@ -1,4 +1,5 @@
 
+import ds.desktop.notify.DesktopNotify;
 import java.awt.Component;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -20,6 +21,20 @@ public class Calendario extends javax.swing.JFrame {
    
     public Calendario() {
         
+        Conectar cc = new Conectar();   
+        ArrayList eventos_arr;
+        
+        Calendar cI = Calendar.getInstance();
+        DateFormat fI=new SimpleDateFormat("yyyy-MM-d");
+        String fechaI = fI.format(cI.getTime());
+        
+        eventos_arr = cc.ConsultarNotificaciones(cc, fechaI);
+        
+        for (int i=0;i<eventos_arr.size();i++)
+        {
+             DesktopNotify.showDesktopMessage("Notificación","Tienes el evento: -"+eventos_arr.get(i)+"-, programado para el día de hoy",DesktopNotify.INFORMATION);       
+        }
+          
         before="Mes";
         calDate = Calendar.getInstance(); 
         initComponents(); 
@@ -222,7 +237,6 @@ public class Calendario extends javax.swing.JFrame {
 	EventoWindow nuevo_evento = new EventoWindow();
         nuevo_evento.show();  
         displayCalendar(0);
-        //dispose();
     }//GEN-LAST:event_creaEvento_buttonActionPerformed
 
     private void eliminarEvento_buttonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eliminarEvento_buttonActionPerformed
@@ -261,11 +275,12 @@ public class Calendario extends javax.swing.JFrame {
             new Object[] { "Si", "No"},   // null para YES, NO y CANCEL
             "opcion 1");
        
+        String text = "eliminar";
         if (opci==0){
-            cc.eliminarByTitulo(cc,String.valueOf(seleccion));
+            cc.eliminarByTitulo(cc,String.valueOf(seleccion),text);
         } 
         else{
-          cc.elimininarByFecha(cc,String.valueOf(seleccion),fecha);  
+          cc.elimininarByFecha(cc,String.valueOf(seleccion),fecha,text);  
         }
         
         displayCalendar(0);
@@ -281,6 +296,8 @@ public class Calendario extends javax.swing.JFrame {
 
         DateFormat f=new SimpleDateFormat("yyyy-MM-d");
         String fecha = f.format(((com.toedter.calendar.JDateChooser)params[1]).getDate());
+        
+        //System.out.println("esta es la fecha: "+fecha);
 
         fechas = cc.Consultar(cc, fecha);
 
@@ -298,9 +315,31 @@ public class Calendario extends javax.swing.JFrame {
             null,  // null para icono defecto
             fechasObject,"opcion 1");
         
-        int id = cc.ConsultarID(cc, String.valueOf(seleccion),fecha);
+        Evento eve_aux = new Evento();
+        
+        eve_aux = cc.ConsultarID(cc, String.valueOf(seleccion),fecha);
+        
+        int opci = JOptionPane.showOptionDialog(
+            null,
+            "¿Desea eliminar todas las ocurrencias?", 
+            "Selector de opciones",
+            JOptionPane.YES_NO_CANCEL_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,    // null para icono por defecto.
+            new Object[] { "Si", "No"},   // null para YES, NO y CANCEL
+            "opcion 1");
+        
+        String text = "modificar";
+       
+        if (opci==0){
+            cc.eliminarByTitulo(cc,String.valueOf(seleccion),text);
+        } 
+        else{
+          cc.elimininarByFecha(cc,String.valueOf(seleccion),fecha,text);  
+        }
+        
      
-        ModificarEventoWindow modificar_evento = new ModificarEventoWindow(id);
+        ModificarEventoWindow modificar_evento = new ModificarEventoWindow(eve_aux);
         modificar_evento.show();  
         
         displayCalendar(0);

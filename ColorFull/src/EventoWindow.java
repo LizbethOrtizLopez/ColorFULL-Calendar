@@ -50,6 +50,7 @@ public class EventoWindow extends javax.swing.JFrame  {
         Guardar = new javax.swing.JButton();
         ocurrenciaPicker = new javax.swing.JComboBox<>();
         elegirColor = new javax.swing.JButton();
+        notificacionPicker = new javax.swing.JComboBox<>();
         AmPmPicker1 = new javax.swing.JComboBox<>();
         minutePicker1 = new javax.swing.JComboBox<>();
         hourPicker1 = new javax.swing.JComboBox<>();
@@ -60,6 +61,7 @@ public class EventoWindow extends javax.swing.JFrame  {
         fechaIni_jDateChooser = new com.toedter.calendar.JDateChooser();
         descripcion_TF = new javax.swing.JTextField();
         titulo_TF = new javax.swing.JTextField();
+        notificacion_JL = new javax.swing.JLabel();
         hora_inicioJL4 = new javax.swing.JLabel();
         hora_inicioJL3 = new javax.swing.JLabel();
         hora_inicioJL2 = new javax.swing.JLabel();
@@ -89,7 +91,7 @@ public class EventoWindow extends javax.swing.JFrame  {
             }
         });
         getContentPane().add(Guardar);
-        Guardar.setBounds(490, 380, 130, 33);
+        Guardar.setBounds(490, 390, 130, 33);
 
         ocurrenciaPicker.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "No repetir", "Diariamente", "Semanalmente", "Mensualmente", "Anualmente", "De lunes a viernes" }));
         ocurrenciaPicker.addActionListener(new java.awt.event.ActionListener() {
@@ -109,7 +111,16 @@ public class EventoWindow extends javax.swing.JFrame  {
             }
         });
         getContentPane().add(elegirColor);
-        elegirColor.setBounds(490, 310, 130, 40);
+        elegirColor.setBounds(490, 320, 130, 40);
+
+        notificacionPicker.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "No", "Si" }));
+        notificacionPicker.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                notificacionPickerActionPerformed(evt);
+            }
+        });
+        getContentPane().add(notificacionPicker);
+        notificacionPicker.setBounds(570, 260, 110, 20);
 
         AmPmPicker1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "AM", "PM" }));
         getContentPane().add(AmPmPicker1);
@@ -154,6 +165,11 @@ public class EventoWindow extends javax.swing.JFrame  {
         titulo_TF.setName("c00"); // NOI18N
         getContentPane().add(titulo_TF);
         titulo_TF.setBounds(350, 90, 350, 30);
+
+        notificacion_JL.setFont(new java.awt.Font("Dosis ExtraBold", 0, 18)); // NOI18N
+        notificacion_JL.setText("Notificaciones:");
+        getContentPane().add(notificacion_JL);
+        notificacion_JL.setBounds(430, 240, 120, 60);
 
         hora_inicioJL4.setFont(new java.awt.Font("Dosis ExtraBold", 0, 18)); // NOI18N
         hora_inicioJL4.setText("Min.");
@@ -260,6 +276,7 @@ public class EventoWindow extends javax.swing.JFrame  {
             evento.setDescripcion(descripcion_TF.getText());
             evento.setOcurrencia((String) ocurrenciaPicker.getSelectedItem()); 
             evento.setColor(color);   
+            evento.setNotificaciones((String)notificacionPicker.getSelectedItem());
 
             cc.Guardar(cc,evento,this.dias);
         }
@@ -293,34 +310,11 @@ public class EventoWindow extends javax.swing.JFrame  {
             this.dias = 1;
        }
     }//GEN-LAST:event_ocurrenciaPickerActionPerformed
-    
-    public static void main(String args[]) {
 
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Windows".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(EventoWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(EventoWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(EventoWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(EventoWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+    private void notificacionPickerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notificacionPickerActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_notificacionPickerActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new EventoWindow().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> AmPmPicker;
@@ -344,6 +338,8 @@ public class EventoWindow extends javax.swing.JFrame  {
     private javax.swing.JComboBox<String> hourPicker1;
     private javax.swing.JComboBox<String> minutePicker;
     private javax.swing.JComboBox<String> minutePicker1;
+    private javax.swing.JComboBox<String> notificacionPicker;
+    private javax.swing.JLabel notificacion_JL;
     private javax.swing.JComboBox<String> ocurrenciaPicker;
     private javax.swing.JLabel ocurrencia_JL;
     private javax.swing.JLabel tiempoJL;

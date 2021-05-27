@@ -71,6 +71,7 @@ public class Conectar {
                     eventos[i].setAmpm_inicio(evento.getAmpm_inicio());
                     eventos[i].setOcurrencia(evento.getOcurrencia());
                     eventos[i].setFecha_inicio(dia_auxiliar); 
+                    eventos[i].setNotificaciones(evento.getNotificaciones());
                 }
                 break;
                 
@@ -100,7 +101,8 @@ public class Conectar {
                     eventos[i].setAmpm_fin(evento.getAmpm_fin());
                     eventos[i].setAmpm_inicio(evento.getAmpm_inicio());
                     eventos[i].setOcurrencia(evento.getOcurrencia());
-                    eventos[i].setFecha_inicio(dia_auxiliar);  
+                    eventos[i].setFecha_inicio(dia_auxiliar); 
+                    eventos[i].setNotificaciones(evento.getNotificaciones());
                 }
                 break;
                 
@@ -130,6 +132,7 @@ public class Conectar {
                     eventos[i].setAmpm_inicio(evento.getAmpm_inicio());
                     eventos[i].setOcurrencia(evento.getOcurrencia());
                     eventos[i].setFecha_inicio(dia_auxiliar); 
+                    eventos[i].setNotificaciones(evento.getNotificaciones());
                 }
                 break;
 
@@ -159,12 +162,13 @@ public class Conectar {
                     eventos[i].setAmpm_inicio(evento.getAmpm_inicio());
                     eventos[i].setOcurrencia(evento.getOcurrencia());
                     eventos[i].setFecha_inicio(dia_auxiliar); 
+                    eventos[i].setNotificaciones(evento.getNotificaciones());
                 }
                 break;      
         }
         for (int i=0;i<secuencia;i++)
         {
-            sql="INSERT INTO eventos (fecha_inicio,fecha_fin,hora_inicio,min_inicio,ampm_inicio,hora_fin,min_fin,ampm_fin,titulo,descripcion,color_evento,ocurrencia) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ;";
+            sql="INSERT INTO eventos (fecha_inicio,fecha_fin,hora_inicio,min_inicio,ampm_inicio,hora_fin,min_fin,ampm_fin,titulo,descripcion,color_evento,ocurrencia,notificaciones) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ;";
             try {
                 PreparedStatement pst = cn.prepareStatement(sql);
 
@@ -183,6 +187,7 @@ public class Conectar {
                 pst.setString(11, color_evento);
                 
                 pst.setString(12, eventos[i].getOcurrencia());
+                pst.setString(13, eventos[i].getNotificaciones());
 
                 int auxi = pst.executeUpdate();
                 if (auxi>0) {
@@ -202,7 +207,7 @@ public class Conectar {
         String color_evento = String.valueOf(evento.getColor().getRGB());
         String sql="";
         
-        sql="UPDATE eventos SET fecha_inicio=?, fecha_fin=?, hora_inicio=?, min_inicio=?, ampm_inicio=?, hora_fin=?, min_fin=?, ampm_fin=?, titulo=?, descripcion=?,color_evento=?,ocurrencia=? WHERE IdEvento=?;";
+        sql="UPDATE eventos SET fecha_inicio=?, fecha_fin=?, hora_inicio=?, min_inicio=?, ampm_inicio=?, hora_fin=?, min_fin=?, ampm_fin=?, titulo=?, descripcion=?,color_evento=?,ocurrencia=?, notificaciones=? WHERE IdEvento=?;";
         try {
             PreparedStatement pst = cn.prepareStatement(sql);
             
@@ -218,8 +223,9 @@ public class Conectar {
             pst.setString(10, evento.getDescripcion());
             pst.setString(11, color_evento);
             pst.setString(12, evento.getOcurrencia());
-            pst.setInt(13, idEvento);
-            
+            pst.setString(13, evento.getNotificaciones());
+            pst.setInt(14, idEvento);
+
             int auxi = pst.executeUpdate();
             if (auxi>0) {
                 JOptionPane.showMessageDialog(null,"Evento actualizado con éxito");
@@ -230,7 +236,7 @@ public class Conectar {
         }
     }
     
-    public void eliminarByTitulo(Conectar cc, String evento){
+    public void eliminarByTitulo(Conectar cc, String evento, String text){
         
         Connection cn = cc.conexion();
         String sql="";
@@ -241,7 +247,7 @@ public class Conectar {
             pst.setString(1, evento);
             
             int auxi = pst.executeUpdate();
-            if (auxi>0) {
+            if (auxi>0  && text=="eliminar") {
                 JOptionPane.showMessageDialog(null,"Evento eliminado con éxito");
             }
         } catch (SQLException ex) {
@@ -250,7 +256,7 @@ public class Conectar {
         } 
     }
     
-    public void elimininarByFecha(Conectar cc, String evento, String fecha){
+    public void elimininarByFecha(Conectar cc, String evento, String fecha, String text){
         
         Connection cn = cc.conexion();
         String sql="";
@@ -262,7 +268,7 @@ public class Conectar {
             pst.setString(2,fecha);
             
             int auxi = pst.executeUpdate();
-            if (auxi>0) {
+            if (auxi>0 && text=="eliminar") {
                 JOptionPane.showMessageDialog(null,"Evento eliminado con éxito");
             }
         } catch (SQLException ex) {
@@ -291,24 +297,59 @@ public class Conectar {
         }       
         return fechas;
     }
-    public int ConsultarID(Conectar cc, String evento, String fecha)
+    public Evento ConsultarID(Conectar cc, String evento, String fecha)
     {
         Connection cn = cc.conexion();    
         Statement st;
-        ResultSet rs;
-        
-        int id = 0;
+        ResultSet rs;       
+        Evento evento_modificar = new Evento();
 
         try {
                 st=cn.createStatement();
                 rs=st.executeQuery("SELECT * FROM eventos WHERE titulo='"+evento+"' AND fecha_inicio='"+fecha+"';");
-                while (rs.next()) {      
-                    id = rs.getInt("IdEvento");
+                while (rs.next()) {  
+                    
+                    Color colorcito = new Color(Integer.parseInt(rs.getString("color_evento")),true);
+                    
+                    evento_modificar.setFecha_inicio(rs.getDate("fecha_inicio"));
+                    evento_modificar.setFecha_fin(rs.getDate("fecha_fin"));
+                    evento_modificar.setHora_inicio(rs.getInt("hora_inicio"));
+                    evento_modificar.setMin_inicio(rs.getInt("min_inicio"));
+                    evento_modificar.setAmpm_inicio(rs.getString("ampm_inicio"));
+                    evento_modificar.setHora_fin(rs.getInt("hora_fin"));
+                    evento_modificar.setMin_fin(rs.getInt("min_fin"));
+                    evento_modificar.setAmpm_fin(rs.getString("ampm_fin"));
+                    evento_modificar.setTitulo(rs.getString("titulo"));
+                    evento_modificar.setDescripcion(rs.getString("descripcion"));
+                    evento_modificar.setColor(colorcito);
+                    evento_modificar.setOcurrencia(rs.getString("ocurrencia"));
+                    evento_modificar.setNotificaciones(rs.getString("notificaciones"));
                 }
                 cn.close();
         } catch (Exception e) {
                 System.out.println("error: "+e);
         }       
-        return id;
-    }  
+        return evento_modificar;
+    }
+    
+    public ArrayList ConsultarNotificaciones(Conectar cc, String evento)
+    {
+        Connection cn = cc.conexion();    
+        Statement st;
+        ResultSet rs;
+        
+        ArrayList fechas = new ArrayList();
+
+        try {
+                st=cn.createStatement();
+                rs=st.executeQuery("SELECT * FROM eventos WHERE fecha_inicio='"+evento+"' AND notificaciones='Si';");
+                while (rs.next()) {      
+                    fechas.add(rs.getString("titulo"));
+                }
+                cn.close();
+        } catch (Exception e) {
+                System.out.println("error: "+e);
+        }       
+        return fechas;
+    }
 }

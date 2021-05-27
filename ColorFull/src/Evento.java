@@ -16,6 +16,7 @@ public class Evento {
     private String descripcion;
     private Color color;
     private String ocurrencia;
+    private String notificaciones;
     
     
     public Evento(){
@@ -31,6 +32,7 @@ public class Evento {
         this.descripcion = null;
         this.color = null;
         this.ocurrencia = null;
+        this.notificaciones = null;
     }
 
     public Date getFecha_inicio() {
@@ -127,6 +129,14 @@ public class Evento {
 
     public void setOcurrencia(String ocurrencia) {
         this.ocurrencia = ocurrencia;
+    }
+    
+    public String getNotificaciones(){
+        return notificaciones;
+    }
+    
+    public void setNotificaciones(String notificaciones){
+        this.notificaciones = notificaciones;
     }
 
 }
