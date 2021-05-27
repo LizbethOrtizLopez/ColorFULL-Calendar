@@ -1,6 +1,7 @@
 # ColorFULL-Calendar
 Calendario para la agenda de eventos. Se pueden agregar, eliminar y modificar eventos conectados a una base de datos MySQL en tu localhost
 
+![Calendario](calendar.png)
 -- --------------------------------------------------------
 
 Para su uso se debe tener previamente en su máquina una Base de Datos de tipo SQL con los siguientes atributos:
